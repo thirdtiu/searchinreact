@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Basic Example with JSX</title>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  </head>
+  <body>
+    
+    <div class="container">
+      <div id="example"></div>
+    </div>
+
+
+    <script src="build/react.js"></script>
+    <script src="build/react-dom.js"></script>
+    <script src="build/browser.min.js"></script>
+    <script src="main.js"></script>
+
+    <script type="text/babel">
+    var EpisodeRow = React.createClass({
+        render: function(){
+            return(
+              <tr>
+                <td>
+                  {this.props.episode.title}
+                </td>
+                <td>
+                    <a href="#">View</a>
+                </td>
+              </tr>
+            );
+        }
+    });
+
+    var SearchBar = React.createClass({
+      handleChange: function(){
+        this.props.onFilterInput(
+          this.refs.filterTextInput.getDOMNode().value
+        );
+      },
+      render: function(){
+        return(
+          <div className="row">
+              <div className="col-lg-4 col-lg-offset-4">
+                  <input ref="filterTextInput" value={this.props.filterText} onChange={this.handleChange} type="search" className="form-control" placeholder="Search for episode" />
+              </div>
+          </div>
+        );
+      }
+    });
+
+    var FilterableEpisodeTable = React.createClass({
+      getInitialState: function() {
+          return {
+            filterText: ''                
+          };
+      },
+
+      handleFilterInput: function(filterText){
+        this.setState({
+          filterText: filterText
+        });
+      },
+
+      render: function(){
+        return(
+          <div className="wrapper">
+            <SearchBar onFilterInput={this.handleFilterInput} filterText={this.state.filterText} />
+            <EpisodeTable filterText={this.state.filterText} episodes={this.props.episodes} />
+          </div>
+        );
+      }
+    });
+
+    var EpisodeTable = React.createClass({
+      render: function(){
+        var props = this.props;
+        var rows = this.props.episodes
+        .filter(function(episode){
+          return episode.title.toLowerCase().indexOf(props.filterText.toLowerCase()) > -1;
+        })
+        .map(function(episode){
+          return <EpisodeRow key={episode.title} episode={episode} />
+        });
+        return(
+          <div className="row spacer">
+              <div className="col-lg-4 col-lg-offset-4">
+                  <table width="100%">
+                      <thead>
+                          <tr>
+                              <th>Title</th>
+                              <th>Link</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {rows}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+        );
+      }
+    });
+
+    var episodes = [{
+      title : "Angular with Yeoman",
+      link : "www.link1.com",
+      date : new Date(2013, 11, 14)
+    },{
+      title : "Using D#",
+      link : "www.link2.com",
+      date : new Date(2013, 11, 30)
+    },{
+      title : "Canvas with paper.js",
+      link : "www.link2.com",
+      date : new Date(2013, 12, 30)
+    },{
+      title : "Expressjs middleware",
+      link : "www.link4.com",
+      date : new Date(2013, 11, 30)
+    }];
+    
+    ReactDOM.render(
+      <FilterableEpisodeTable episodes={episodes} />,
+      document.getElementById('example')
+    );
+    </script>
+  </body>
+</html>
